@@ -43,22 +43,3 @@ taskwave-backend/
 ├─ pom.xml / build.gradle       <- Dependencias y configuración del build
 └─ .gitignore
 ```
-## Configuracion
-1. Crea tu .env
-- Campos requeridos (ejemplo)
-```bash
-#.env
-DB_URL=jdbc:mysql://localhost:3306/db_name
-LOCAL_DB_USER=user_db
-LOCAL_DB_PASSWORD=pass_db
-SECRET_KEY=STRING_KEY
-```
-2. Instalar dependecias
-```bash
-mvn clean install
-```
-3. Correr el proyecto
-```bash
-mvn spring-boot:run
-```
-
