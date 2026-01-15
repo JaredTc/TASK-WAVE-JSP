@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TasksDTO {
+    private Long id;
     private String title;
     private LocalDateTime dateEnd;
     private Long assignedTo;   // ID
