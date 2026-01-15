@@ -8,7 +8,8 @@ Implementado en **Java con Spring Boot**, utiliza **JWT** para autenticación y 
 - Registro de usuarios (contraseña encriptada con BCrypt)  
 - Login y generación de **Access Token** y **Refresh Token**  
 - Actualización y eliminación de usuarios  
-- CRUD de tareas  
+- CRUD de tareas
+- Paginacion y filtros
 - Escalable para agregar futuras funcionalidades  
 
 ---
