@@ -11,7 +11,10 @@ import com.taskwave.taskwave.repository.UserRepository;
 import com.taskwave.taskwave.util.TasksMapper;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
 
 import java.util.List;
 
@@ -60,6 +63,19 @@ public class TaskService {
                 .map(this::mapToDto)
                 .toList();
     }
+    public Page<TasksResDTO> getAllTasks(String search, Pageable pageable) {
+
+        Page<Tasks> page;
+        if (search != null && !search.trim().isEmpty()) {
+            page = taskReposirtory.findByTitleContainingIgnoreCaseOrStatusIgnoreCase(
+                    search, search, pageable
+            );
+        } else {
+            page = taskReposirtory.findAll(pageable);
+        }
+        return page.map(this::mapToDto);
+    }
+
 
     /**
      * Convierte una entidad Tasks a su DTO de respuesta.

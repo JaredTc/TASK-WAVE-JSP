@@ -4,6 +4,10 @@ import com.taskwave.taskwave.dto.DeleteResponseDTO;
 import com.taskwave.taskwave.dto.TasksDTO;
 import com.taskwave.taskwave.dto.TasksResDTO;
 import com.taskwave.taskwave.service.TaskService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,6 +38,7 @@ public class TasksController {
 
     /**
      * Obtiene el listado completo de tareas.
+     * SIN PAGINACIÓN Y CON PAGINACIÓN
      *
      * Método HTTP: GET
      * Endpoint: /api/tasks/tasks
@@ -45,6 +50,14 @@ public class TasksController {
         return ResponseEntity.ok(taskService.getAllTasks());
     }
 
+    @GetMapping("/tasks_all")
+    public  ResponseEntity<Page<TasksResDTO>> getAllTasks(
+            @RequestParam(required = false) String search,
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
+            Pageable pageable) {
+        return ResponseEntity.ok(taskService.getAllTasks(search,pageable));
+
+    }
     /**
      * Crea una nueva tarea.
      *
@@ -95,4 +108,6 @@ public class TasksController {
                 )
         );
     }
+
+
 }
