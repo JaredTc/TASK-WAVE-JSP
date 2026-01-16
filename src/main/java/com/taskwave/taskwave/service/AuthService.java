@@ -5,6 +5,7 @@ import com.taskwave.taskwave.dto.LoginResDTO;
 import com.taskwave.taskwave.entity.User;
 import com.taskwave.taskwave.repository.UserRepository;
 import com.taskwave.taskwave.util.JwtUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +14,9 @@ public class AuthService {
 
     private  final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    @Autowired
+    private JwtUtil jwtUtil;
+
     public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
@@ -26,8 +30,8 @@ public class AuthService {
             throw new RuntimeException("Credenciales incorrectas");
         }
 
-        String accessToken = JwtUtil.generateAccessToken(user.getId(), user.getUsername());
-        String refreshToken = JwtUtil.generateRefreshToken(user.getId(), user.getUsername());
+        String accessToken = jwtUtil.generateAccessToken(user.getId(), user.getUsername());
+        String refreshToken = jwtUtil.generateRefreshToken(user.getId(), user.getUsername());
 
         return new LoginResDTO(accessToken, refreshToken);
     }

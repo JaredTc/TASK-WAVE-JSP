@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -37,6 +39,13 @@ public class Register {
     @Column(name = "date_joined", nullable = false)
     private LocalDateTime dateJoined;
 
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<Role> roles = new HashSet<>();
     // 👇 ESTE MÉTODO SE EJECUTA ANTES DEL INSERT
     @PrePersist
     public void prePersist() {
