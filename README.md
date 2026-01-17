@@ -6,7 +6,8 @@ Backend del proyecto **TaskWave**, encargado de gestionar usuarios y tareas.
 Implementado en **Java con Spring Boot**, utiliza **JWT** para autenticación y soporta funcionalidades como:  
 
 - Registro de usuarios (contraseña encriptada con BCrypt)  
-- Login y generación de **Access Token** y **Refresh Token**  
+- Login y generación de **Access Token** y **Refresh Token**
+- Spring Security Basica, endpoints protegidos por token
 - Actualización y eliminación de usuarios  
 - CRUD de tareas
 - Paginacion y filtros
