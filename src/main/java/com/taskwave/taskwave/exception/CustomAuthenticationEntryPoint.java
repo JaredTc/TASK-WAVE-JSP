@@ -1,4 +1,4 @@
-package com.taskwave.taskwave.security;
+package com.taskwave.taskwave.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -24,8 +24,8 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
 
         Map<String, Object> body = new HashMap<>();
         body.put("status", 401);
-        body.put("error", "No autenticado");
-        body.put("message", "Token inválido o no proporcionado");
+        body.put("error", "Unauthorized");
+        body.put("message", "Token is missing or invalid.");
         body.put("path", request.getRequestURI());
 
         new ObjectMapper().writeValue(response.getOutputStream(), body);

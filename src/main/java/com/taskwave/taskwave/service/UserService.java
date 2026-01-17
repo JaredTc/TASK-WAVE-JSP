@@ -21,15 +21,16 @@ public class UserService {
     private  final RegisterRepository registerRepository;
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
-
+    private final EmailService emailService;
     public UserService(UserRepository userRepository,
                        RegisterRepository registerRepository,
-                          RoleRepository roleRepository,
-                       PasswordEncoder passwordEncoder) {
+                       RoleRepository roleRepository,
+                       PasswordEncoder passwordEncoder, EmailService emailService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.roleRepository = roleRepository;
         this.registerRepository = registerRepository;
+        this.emailService = emailService;
     }
 
     public void register(RegisterReqDTO dto) {
@@ -71,6 +72,10 @@ public class UserService {
             user.setRoles(Set.of(defaultRole));
         }
 
+        emailService.sendWelcomeEmail(
+             user.getEmail(),
+               user.getFirstName()
+        );
          registerRepository.save(user);
     }
 }

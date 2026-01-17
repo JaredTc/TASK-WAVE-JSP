@@ -41,7 +41,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             String token = authHeader.substring(7);
 
             try {
-                // 🔹 PARSEAR TOKEN CORRECTAMENTE con 0.12.x
                 Claims claims = Jwts.parser()
                         .setSigningKey(Keys.hmacShaKeyFor(jwtUtil.getSecret().getBytes(StandardCharsets.UTF_8)))
                         .build()
@@ -50,12 +49,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
                 Long userId = Long.parseLong(claims.getSubject());
 
-                Register user = registerRepository.findById(userId)
-                        .orElseThrow(() -> new RuntimeException("Usuario no existe"));
-//                    System.out.println("Token recibido: " + token);
-//                    System.out.println("UserId extraído: " + userId);
-//                    System.out.println("Usuario DB: " + user);
-//                    System.out.println("Roles del usuario: " + (user != null ? user.getRoles() : "null"));
+                Register user = registerRepository.findById(userId).orElse(null);
+
                 if (user != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                     UsernamePasswordAuthenticationToken authToken =
                             new UsernamePasswordAuthenticationToken(
@@ -71,11 +66,22 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 }
 
             } catch (Exception e) {
+                // Log el error pero continúa el filtro
+                System.err.println("Error procesando JWT: " + e.getMessage());
                 SecurityContextHolder.clearContext();
-//                return;
             }
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String path = request.getServletPath();
+        // Excluir Swagger y endpoints públicos
+        return path.startsWith("/swagger-ui")
+                || path.startsWith("/v3/api-docs")
+                || path.equals("/swagger-ui.html")
+                || path.startsWith("/api/auth");
     }
 }

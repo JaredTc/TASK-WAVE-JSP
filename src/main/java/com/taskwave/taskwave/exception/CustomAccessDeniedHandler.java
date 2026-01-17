@@ -1,4 +1,4 @@
-package com.taskwave.taskwave.security;
+package com.taskwave.taskwave.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

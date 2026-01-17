@@ -1,5 +1,6 @@
 package com.taskwave.taskwave.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -7,6 +8,10 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Schema(
+        name = "TasksDTO",
+        description = "Data Transfer Object used to create and update tasks"
+)
 public class TasksDTO {
     private Long id;
     private String title;
