@@ -6,7 +6,7 @@ import com.taskwave.taskwave.entity.Tasks;
 import com.taskwave.taskwave.entity.User;
 import com.taskwave.taskwave.repository.Categoryrepository;
 import com.taskwave.taskwave.repository.TaskReposirtory;
-import com.taskwave.taskwave.repository.UserRepository;
+import com.taskwave.taskwave.repository.AuthRepository;
 import com.taskwave.taskwave.util.TasksMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,7 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.scheduling.config.Task;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -32,7 +32,7 @@ public class TaskServiceTest {
     @Mock
     private TaskReposirtory taskReposirtory;
     @Mock
-    private UserRepository userRepository;
+    private AuthRepository authRepository;
     @Mock
     private Categoryrepository categoryrepository;
     @InjectMocks
@@ -122,8 +122,8 @@ public class TaskServiceTest {
         savedTask.setCreatedBy(creator);
         savedTask.setCategory(category);
 
-        when(userRepository.findById(1L)).thenReturn(java.util.Optional.of(assigned));
-        when(userRepository.findById(1L)).thenReturn(java.util.Optional.of(creator));
+        when(authRepository.findById(1L)).thenReturn(java.util.Optional.of(assigned));
+        when(authRepository.findById(1L)).thenReturn(java.util.Optional.of(creator));
         when(categoryrepository.findById(3L)).thenReturn(java.util.Optional.of(category));
         when(taskReposirtory.save(any(Tasks.class))).thenReturn(savedTask);
 
@@ -172,7 +172,7 @@ public class TaskServiceTest {
         // Mocks del repository y mapper
         when(taskReposirtory.findById(taskId)).thenReturn(Optional.of(task));
         doNothing().when(tasksMapper).updateTaskFromDto(dto, task);
-        when(userRepository.findById(2L)).thenReturn(Optional.of(assignedUser));
+        when(authRepository.findById(2L)).thenReturn(Optional.of(assignedUser));
         when(categoryrepository.findById(3L)).thenReturn(Optional.of(category));
         when(taskReposirtory.save(task)).thenReturn(task);
         when(tasksMapper.toResponseDto(task)).thenReturn(responseDto);

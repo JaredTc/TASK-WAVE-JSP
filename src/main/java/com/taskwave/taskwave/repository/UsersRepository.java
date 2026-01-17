@@ -3,6 +3,5 @@ package com.taskwave.taskwave.repository;
 import com.taskwave.taskwave.entity.Users;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface RegisterRepository extends JpaRepository<Users, Long> {
-
+public interface UsersRepository  extends JpaRepository<Users, Long> {
 }

@@ -1,6 +1,6 @@
 package com.taskwave.taskwave.security;
 
-import com.taskwave.taskwave.entity.Register;
+import com.taskwave.taskwave.entity.Users;
 import com.taskwave.taskwave.repository.RegisterRepository;
 import com.taskwave.taskwave.util.JwtUtil;
 import io.jsonwebtoken.Claims;
@@ -49,7 +49,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
                 Long userId = Long.parseLong(claims.getSubject());
 
-                Register user = registerRepository.findById(userId).orElse(null);
+                Users user = registerRepository.findById(userId).orElse(null);
 
                 if (user != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                     UsernamePasswordAuthenticationToken authToken =

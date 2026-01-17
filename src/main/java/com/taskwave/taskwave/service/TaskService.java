@@ -3,14 +3,15 @@ package com.taskwave.taskwave.service;
 import com.taskwave.taskwave.dto.TasksDTO;
 import com.taskwave.taskwave.dto.TasksResDTO;
 import com.taskwave.taskwave.entity.Category;
-import com.taskwave.taskwave.entity.Register;
+import com.taskwave.taskwave.entity.Users;
 import com.taskwave.taskwave.entity.Tasks;
 import com.taskwave.taskwave.entity.User;
 
 import com.taskwave.taskwave.exception.ResourceNotFoundException;
 import com.taskwave.taskwave.repository.Categoryrepository;
 import com.taskwave.taskwave.repository.TaskReposirtory;
-import com.taskwave.taskwave.repository.UserRepository;
+import com.taskwave.taskwave.repository.AuthRepository;
+import com.taskwave.taskwave.util.Helper;
 import com.taskwave.taskwave.util.TasksMapper;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -42,17 +43,19 @@ public class TaskService {
 
     private final TasksMapper tasksMapper;
     private TaskReposirtory taskReposirtory;
-    private final UserRepository userRepository;
+    private final AuthRepository authRepository;
     private final Categoryrepository categoryRepository;
+    private final Helper helper;
 
     public TaskService(TaskReposirtory taskReposirtory,
-                       UserRepository userRepository,
+                       AuthRepository authRepository,
                        Categoryrepository categoryRepository,
-                       TasksMapper tasksMapper) {
+                       TasksMapper tasksMapper, Helper helper) {
         this.taskReposirtory = taskReposirtory;
-        this.userRepository = userRepository;
+        this.authRepository = authRepository;
         this.categoryRepository = categoryRepository;
         this.tasksMapper = tasksMapper;
+        this.helper = helper;
     }
 
     /**
@@ -63,7 +66,7 @@ public class TaskService {
     public List<TasksResDTO> getAllTasks() {
         return taskReposirtory.findAll()
                 .stream()
-                .map(this::mapToDto)
+                .map(helper::mapToDtoTask)
                 .toList();
     }
     public Page<TasksResDTO> getAllTasks(String search, Pageable pageable) {
@@ -76,46 +79,20 @@ public class TaskService {
         } else {
             page = taskReposirtory.findAll(pageable);
         }
-        return page.map(this::mapToDto);
+        return page.map(helper::mapToDtoTask);
     }
 
-    public List<TasksResDTO> getTasksByUser(Register currentUser) {
-        User user = userRepository.findById(currentUser.getId())
+    public List<TasksResDTO> getTasksByUser(Users currentUser) {
+        User user = authRepository.findById(currentUser.getId())
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
         List<Tasks> tasks = taskReposirtory.findByAssignedTo(user);
 
         return tasks.stream()
-                .map(this::mapToDto)
+                .map(helper::mapToDtoTask)
                 .toList();
     }
-    /**
-     * Convierte una entidad Tasks a su DTO de respuesta.
-     *
-     * NOTA:
-     * Este método se utiliza principalmente en creación y listado.
-     *
-     * @param task Entidad Tasks
-     * @return DTO listo para enviar al cliente
-     */
-    private TasksResDTO mapToDto(Tasks task) {
-        return new TasksResDTO(
-                task.getId(),
-                task.getTitle(),
-                task.getDateEnd(),
-                task.getAssignedTo().getUsername(),
-                task.getCategory().getName(), // nombre
-                task.getDescription(),
-                task.getStatus(),
-                task.getIsCompleted(),
-                task.getAlerts(),
-                task.getCreatedBy().getUsername(),
-                task.getObjective(),
-                task.getPercent(),
-                task.getCreatedAt(),
-                task.getUpdatedAt()
-        );
-    }
+
 
     /**
      * Crea una nueva tarea.
@@ -128,7 +105,7 @@ public class TaskService {
      * @param dto DTO con la información de la tarea
      * @return Tarea creada en formato DTO
      */
-    public TasksResDTO create(TasksDTO dto, Register currentUser) {
+    public TasksResDTO create(TasksDTO dto, Users currentUser) {
 
         if (dto.getCategory() == null || dto.getCategory() <= 0)
             throw new IllegalArgumentException("Category inválida");
@@ -144,10 +121,10 @@ public class TaskService {
         task.setObjective(dto.getObjective());
         task.setPercent(dto.getPercent());
 
-        User assigned = userRepository.findById(currentUser.getId())
+        User assigned = authRepository.findById(currentUser.getId())
                 .orElseThrow(() -> new RuntimeException("Usuario asignado no existe"));
 
-        User creator = userRepository.findById(currentUser.getId())
+        User creator = authRepository.findById(currentUser.getId())
                 .orElseThrow(() -> new RuntimeException("Usuario creador no existe"));
 
         Category category = categoryRepository.findById(dto.getCategory())
@@ -157,7 +134,7 @@ public class TaskService {
         task.setCreatedBy(creator);
         task.setCategory(category);
 
-        return mapToDto(taskReposirtory.save(task));
+        return helper.mapToDtoTask(taskReposirtory.save(task));
     }
 
     /**
@@ -182,7 +159,7 @@ public class TaskService {
         tasksMapper.updateTaskFromDto(dto, task);
 
         if (dto.getAssignedTo() != null) {
-            User assigned = userRepository.findById(dto.getAssignedTo())
+            User assigned = authRepository.findById(dto.getAssignedTo())
                     .orElseThrow(() -> new EntityNotFoundException("Usuario asignado no existe"));
             task.setAssignedTo(assigned);
         }

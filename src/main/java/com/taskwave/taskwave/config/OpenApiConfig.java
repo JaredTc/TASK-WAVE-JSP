@@ -16,7 +16,7 @@ public class OpenApiConfig {
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("TaskWave API")
+                        .title("Wave APIs")
                         .version("1.0.0")
                         .description("API REST para gestión de tareas con autenticación JWT")
                         .contact(new Contact()
