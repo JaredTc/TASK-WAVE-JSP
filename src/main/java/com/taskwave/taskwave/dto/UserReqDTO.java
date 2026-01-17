@@ -1,11 +1,20 @@
 package com.taskwave.taskwave.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Set;
 
-@Schema(description = "DTO for user registration request")
-public class RegisterReqDTO {
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Schema(
+        name = "User Req DTO",
+        description = "Data Transfer Object for User Requests"
+)
+public class UserReqDTO {
     public String username;
     public String password;
     public String email;

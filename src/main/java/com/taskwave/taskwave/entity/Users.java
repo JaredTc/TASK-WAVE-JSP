@@ -12,7 +12,7 @@ import java.util.Set;
 @Getter
 @Setter
 @Table(name = "task_wave_customuser")
-public class Register {
+public class Users {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

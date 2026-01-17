@@ -46,6 +46,9 @@ public class JwtUtil {
     public String generateRefreshToken(Long userId, String username) {
         return generateToken(userId, username, 7 * 24 * 60 * 60 * 1000L); // 7 días
     }
+
+
+
 }
 
 

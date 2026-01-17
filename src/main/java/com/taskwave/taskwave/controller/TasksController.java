@@ -4,7 +4,7 @@ import com.taskwave.taskwave.dto.DeleteResponseDTO;
 import com.taskwave.taskwave.dto.ResponseDTO;
 import com.taskwave.taskwave.dto.TasksDTO;
 import com.taskwave.taskwave.dto.TasksResDTO;
-import com.taskwave.taskwave.entity.Register;
+import com.taskwave.taskwave.entity.Users;
 import com.taskwave.taskwave.service.TaskService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -67,7 +67,7 @@ public class TasksController {
             description = "Retrieve tasks associated with the authenticated user"
     )
     @GetMapping("/tasks_by_user")
-    public ResponseEntity<List<TasksResDTO>> tasksByUser(@AuthenticationPrincipal Register currentUser) {
+    public ResponseEntity<List<TasksResDTO>> tasksByUser(@AuthenticationPrincipal Users currentUser) {
         List<TasksResDTO> tasks = taskService.getTasksByUser(currentUser);
         return ResponseEntity.ok(tasks);
     }
@@ -100,7 +100,7 @@ public class TasksController {
     )
     @PostMapping("/create")
     public ResponseEntity<ResponseDTO> createTask(@RequestBody TasksDTO dto,
-                                                  @AuthenticationPrincipal Register currentUser) {
+                                                  @AuthenticationPrincipal Users currentUser) {
         TasksResDTO task = taskService.create(dto, currentUser);
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 new ResponseDTO("Task created successfully", HttpStatus.CREATED.value(), LocalDateTime.now()) );

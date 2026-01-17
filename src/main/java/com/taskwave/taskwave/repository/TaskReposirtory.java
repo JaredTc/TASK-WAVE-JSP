@@ -1,6 +1,5 @@
 package com.taskwave.taskwave.repository;
 
-import com.taskwave.taskwave.entity.Register;
 import com.taskwave.taskwave.entity.Tasks;
 import com.taskwave.taskwave.entity.User;
 import org.springframework.data.domain.Page;
