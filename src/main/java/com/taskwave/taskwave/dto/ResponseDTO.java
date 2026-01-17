@@ -5,16 +5,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "DTO for delete response")
-public class DeleteResponseDTO {
+@Schema(description = "Generic Response DTO")
+public class ResponseDTO {
     private String message;
-    private Long id;
-    private LocalDateTime deletedAt;
-
-
+    private Integer status;
+    private Object data;
 }

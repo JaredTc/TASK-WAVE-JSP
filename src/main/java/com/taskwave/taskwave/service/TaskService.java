@@ -3,8 +3,11 @@ package com.taskwave.taskwave.service;
 import com.taskwave.taskwave.dto.TasksDTO;
 import com.taskwave.taskwave.dto.TasksResDTO;
 import com.taskwave.taskwave.entity.Category;
+import com.taskwave.taskwave.entity.Register;
 import com.taskwave.taskwave.entity.Tasks;
 import com.taskwave.taskwave.entity.User;
+
+import com.taskwave.taskwave.exception.ResourceNotFoundException;
 import com.taskwave.taskwave.repository.Categoryrepository;
 import com.taskwave.taskwave.repository.TaskReposirtory;
 import com.taskwave.taskwave.repository.UserRepository;
@@ -76,7 +79,16 @@ public class TaskService {
         return page.map(this::mapToDto);
     }
 
+    public List<TasksResDTO> getTasksByUser(Register currentUser) {
+        User user = userRepository.findById(currentUser.getId())
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
+        List<Tasks> tasks = taskReposirtory.findByAssignedTo(user);
+
+        return tasks.stream()
+                .map(this::mapToDto)
+                .toList();
+    }
     /**
      * Convierte una entidad Tasks a su DTO de respuesta.
      *
@@ -116,7 +128,7 @@ public class TaskService {
      * @param dto DTO con la información de la tarea
      * @return Tarea creada en formato DTO
      */
-    public TasksResDTO create(TasksDTO dto) {
+    public TasksResDTO create(TasksDTO dto, Register currentUser) {
 
         if (dto.getCategory() == null || dto.getCategory() <= 0)
             throw new IllegalArgumentException("Category inválida");
@@ -132,10 +144,10 @@ public class TaskService {
         task.setObjective(dto.getObjective());
         task.setPercent(dto.getPercent());
 
-        User assigned = userRepository.findById(dto.getAssignedTo())
+        User assigned = userRepository.findById(currentUser.getId())
                 .orElseThrow(() -> new RuntimeException("Usuario asignado no existe"));
 
-        User creator = userRepository.findById(dto.getCreatedBy())
+        User creator = userRepository.findById(currentUser.getId())
                 .orElseThrow(() -> new RuntimeException("Usuario creador no existe"));
 
         Category category = categoryRepository.findById(dto.getCategory())
@@ -191,9 +203,9 @@ public class TaskService {
      * @param id ID de la tarea a eliminar
      */
     @Transactional
-        public void deleteTask(Long id) {
+    public void deleteTask(Long id) {
         if (!taskReposirtory.existsById(id)) {
-            throw new EntityNotFoundException("Tarea no existe");
+            throw new ResourceNotFoundException("La tarea con id " + id + " no existe");
         }
         taskReposirtory.deleteById(id);
     }

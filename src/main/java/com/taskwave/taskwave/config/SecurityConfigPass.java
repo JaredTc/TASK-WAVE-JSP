@@ -10,7 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
     -Spring lo puede inyectar en cualquier Service
  *  */
 @Configuration
-public class SecurityConfig {
+public class SecurityConfigPass {
 
     @Bean
     public PasswordEncoder passwordEncoder() {

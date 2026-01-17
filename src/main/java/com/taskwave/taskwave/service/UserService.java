@@ -3,11 +3,16 @@ package com.taskwave.taskwave.service;
 
 import com.taskwave.taskwave.dto.RegisterReqDTO;
 import com.taskwave.taskwave.entity.Register;
+import com.taskwave.taskwave.entity.Role;
 import com.taskwave.taskwave.repository.RegisterRepository;
+import com.taskwave.taskwave.repository.RoleRepository;
 import com.taskwave.taskwave.repository.UserRepository;
 import com.taskwave.taskwave.exception.BadRequestException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -15,13 +20,17 @@ public class UserService {
     private final UserRepository userRepository;
     private  final RegisterRepository registerRepository;
     private final PasswordEncoder passwordEncoder;
-
+    private final RoleRepository roleRepository;
+    private final EmailService emailService;
     public UserService(UserRepository userRepository,
                        RegisterRepository registerRepository,
-                       PasswordEncoder passwordEncoder) {
+                       RoleRepository roleRepository,
+                       PasswordEncoder passwordEncoder, EmailService emailService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.roleRepository = roleRepository;
         this.registerRepository = registerRepository;
+        this.emailService = emailService;
     }
 
     public void register(RegisterReqDTO dto) {
@@ -38,6 +47,8 @@ public class UserService {
         user.setPosition(dto.position);
         user.setImgProfile(dto.imgProfile);
 
+
+
         //  ENCRIPTAR PASSWORD (BCrypt)
         user.setPassword(
                 passwordEncoder.encode(dto.password)
@@ -47,7 +58,24 @@ public class UserService {
         user.setIs_active(true);
         user.setIs_staff(false);
         user.setIs_superuser(false);
+        // 2️⃣ Asignar roles
+        if (dto.roles != null && !dto.roles.isEmpty()) {
+            Set<Role> roles = dto.roles.stream()
+                    .map(roleName -> roleRepository.findByName(roleName)
+                            .orElseThrow(() -> new RuntimeException("Rol no encontrado: " + roleName)))
+                    .collect(Collectors.toSet());
+            user.setRoles(roles);
+        } else {
+            // rol default si no envían roles
+            Role defaultRole = roleRepository.findByName("USER")
+                    .orElseThrow(() -> new RuntimeException("Rol USER no existe"));
+            user.setRoles(Set.of(defaultRole));
+        }
 
-        registerRepository.save(user);
+        emailService.sendWelcomeEmail(
+             user.getEmail(),
+               user.getFirstName()
+        );
+         registerRepository.save(user);
     }
 }
