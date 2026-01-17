@@ -10,6 +10,8 @@ Implementado en **Java con Spring Boot**, utiliza **JWT** para autenticación y 
 - Actualización y eliminación de usuarios  
 - CRUD de tareas
 - Paginacion y filtros
+- Envio de Correos 
+- Documentacion con Swagger
 - Escalable para agregar futuras funcionalidades  
 
 ---
