@@ -39,7 +39,7 @@ public class GlobalExceptionHandler {
             InvalidCredentialsException ex) {
 
         return ResponseEntity
-                .status(HttpStatus.UNAUTHORIZED)
+                .status(HttpStatus.NOT_FOUND)
                 .body(Map.of("error", ex.getMessage()));
     }
 

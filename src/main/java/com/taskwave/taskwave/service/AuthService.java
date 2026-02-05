@@ -1,5 +1,6 @@
 package com.taskwave.taskwave.service;
 
+import com.taskwave.taskwave.dto.AuthTokens;
 import com.taskwave.taskwave.dto.LoginReqDTO;
 import com.taskwave.taskwave.dto.LoginResDTO;
 import com.taskwave.taskwave.entity.User;
@@ -11,6 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Service
 public class AuthService {
 
@@ -19,29 +23,52 @@ public class AuthService {
     @Autowired
     private JwtUtil jwtUtil;
 
+    private final Set<String> validRefreshTokens = new HashSet<>();
+
     public AuthService(AuthRepository authRepository, PasswordEncoder passwordEncoder) {
         this.authRepository = authRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
-    public LoginResDTO login(LoginReqDTO request) {
-        try{
-            User user = authRepository.findByUsername(request.getUsername())
-                    .orElseThrow(UserNotFoundException::new);
+    public AuthTokens login(LoginReqDTO request) {
 
-            if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-                throw new InvalidCredentialsException();
-            }
+        User user = authRepository.findByUsername(request.getUsername())
+                .orElseThrow(InvalidCredentialsException::new);
 
-            String accessToken = jwtUtil.generateAccessToken(user.getId(), user.getUsername());
-            String refreshToken = jwtUtil.generateRefreshToken(user.getId(), user.getUsername());
-
-            return new LoginResDTO(accessToken, refreshToken);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new InvalidCredentialsException();
         }
 
+        String accessToken = jwtUtil.generateAccessToken(user.getId(), user.getUsername() , user.getRoles());
+        String refreshToken = jwtUtil.generateRefreshToken(user.getId(), user.getUsername());
 
+        return new AuthTokens(accessToken, refreshToken);
+    }
+
+
+    public LoginResDTO refresh(String refreshToken) {
+
+        if (!jwtUtil.isTokenValid(refreshToken)) {
+            throw new RuntimeException("Refresh token inválido");
+        }
+
+        Long userId = jwtUtil.extractUserId(refreshToken);
+
+        User user = authRepository.findById(userId)
+                .orElseThrow(UserNotFoundException::new);
+
+        String newAccessToken = jwtUtil.generateRefreshToken(
+                user.getId(),
+                user.getUsername()
+        );
+
+        return new LoginResDTO(newAccessToken);
+    }
+
+    public String generateNewRefreshToken(String oldRefreshToken) {
+        Long userId = jwtUtil.extractUserId(oldRefreshToken);
+        String username = jwtUtil.extractUsername(oldRefreshToken);
+        return jwtUtil.generateRefreshToken(userId, username);
     }
 
 }
