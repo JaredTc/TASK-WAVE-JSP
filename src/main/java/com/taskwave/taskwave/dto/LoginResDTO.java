@@ -11,5 +11,5 @@ import lombok.Setter;
 @Schema(description = "DTO for login response")
 public class LoginResDTO {
     private String token;
-    private  String refreshToken;
+//    private  String refreshToken;
 }
