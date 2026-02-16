@@ -56,23 +56,40 @@ public class JwtUtil {
                 .compact();
     }
     private String generateRefreshTokenInternal(
-            Long userId,
-            String username,
-            long expirationTime
-    ) {
-        Map<String, Object> claims = new HashMap<>();
+        Long userId,
+        String username,
+        long expirationTime
+) {
+    Map<String, Object> claims = new HashMap<>();
+    claims.put("type", "refresh");
 
-        claims.put("userId", userId);
-        claims.put("type", "refresh"); // opcional pero PRO
+    return Jwts.builder()
+            .setClaims(claims)
+            .setSubject(String.valueOf(userId)) // 🔥 CAMBIO CLAVE
+            .setIssuedAt(new Date())
+            .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
+            .signWith(key, SignatureAlgorithm.HS256)
+            .compact();
+}
 
-        return Jwts.builder()
-                .setClaims(claims)
-                .setSubject(username)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
-                .signWith(key, SignatureAlgorithm.HS256)
-                .compact();
-    }
+    // private String generateRefreshTokenInternal(
+    //         Long userId,
+    //         String username,
+    //         long expirationTime
+    // ) {
+    //     Map<String, Object> claims = new HashMap<>();
+
+    //     claims.put("userId", userId);
+    //     claims.put("type", "refresh"); // opcional pero PRO
+
+    //     return Jwts.builder()
+    //             .setClaims(claims)
+    //             .setSubject(username)
+    //             .setIssuedAt(new Date())
+    //             .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
+    //             .signWith(key, SignatureAlgorithm.HS256)
+    //             .compact();
+    // }
 
 //    private String generateToken(Long userId, String username, long expirationMillis) {
 //        Date now = new Date();
@@ -89,7 +106,7 @@ public class JwtUtil {
 
     public String generateAccessToken(Long userId, String username,  Set<Role> roles) {
 //        return generateToken(userId, username,roles ,10 * 1000);
-        return generateToken(userId, username, roles, 15 * 60 * 1000);
+        return generateToken(userId, username, roles, 10 * 60 * 1000);
     }
 
     public String generateRefreshToken(Long userId, String username) {
@@ -116,6 +133,16 @@ public class JwtUtil {
             return false;
         }
     }
+
+public boolean isRefreshTokenValid(String token) {
+    try {
+        Claims claims = extractClaims(token);
+        return "refresh".equals(claims.get("type"));
+    } catch (Exception e) {
+        return false;
+    }
+}
+
 
     public Long extractUserId(String token) {
         return Long.valueOf(extractClaims(token).getSubject());

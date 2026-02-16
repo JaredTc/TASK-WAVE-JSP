@@ -46,29 +46,32 @@ public class AuthService {
     }
 
 
-    public LoginResDTO refresh(String refreshToken) {
+public LoginResDTO refresh(String refreshToken) {
 
-        if (!jwtUtil.isTokenValid(refreshToken)) {
-            throw new RuntimeException("Refresh token inválido");
-        }
-
-        Long userId = jwtUtil.extractUserId(refreshToken);
-
-        User user = authRepository.findById(userId)
-                .orElseThrow(UserNotFoundException::new);
-
-        String newAccessToken = jwtUtil.generateRefreshToken(
-                user.getId(),
-                user.getUsername()
-        );
-
-        return new LoginResDTO(newAccessToken);
+  if (!jwtUtil.isRefreshTokenValid(refreshToken)) {
+        throw new RuntimeException("Refresh token inválido");
     }
+    Long userId = jwtUtil.extractUserId(refreshToken);
+
+    User user = authRepository.findById(userId)
+            .orElseThrow(UserNotFoundException::new);
+
+    // ✅ AQUÍ VA ACCESS TOKEN
+    String newAccessToken = jwtUtil.generateAccessToken(
+            user.getId(),
+            user.getUsername(),
+            user.getRoles()
+    );
+
+    return new LoginResDTO(newAccessToken);
+}
+
 
     public String generateNewRefreshToken(String oldRefreshToken) {
         Long userId = jwtUtil.extractUserId(oldRefreshToken);
         String username = jwtUtil.extractUsername(oldRefreshToken);
-        return jwtUtil.generateRefreshToken(userId, username);
+
+        return jwtUtil.generateRefreshToken(userId, username );
     }
 
 }

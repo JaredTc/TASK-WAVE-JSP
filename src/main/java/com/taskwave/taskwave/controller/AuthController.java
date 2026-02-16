@@ -90,12 +90,13 @@ public class AuthController {
 
         ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
                 .httpOnly(true)
-                .secure(false) // ⚠️ true en producción (HTTPS)
-                .path("/")
+                .secure(false) //  true en producción (HTTPS)
+                 .path("/")  
                 .maxAge(7 * 24 * 60 * 60)
-                .sameSite("Lax")
+              .sameSite("None") 
                 .build();
+            response.addHeader("Set-Cookie", cookie.toString());
 
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        // response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
     }
 }
